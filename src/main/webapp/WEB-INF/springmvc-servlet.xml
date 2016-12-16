@@ -1,0 +1,90 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+        	http://www.springframework.org/schema/beans     
+        	http://www.springframework.org/schema/beans/spring-beans.xsd
+        	http://www.springframework.org/schema/mvc 
+        	http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        	http://www.springframework.org/schema/tx 
+        	http://www.springframework.org/schema/tx/spring-tx.xsd
+        	http://www.springframework.org/schema/context 
+        	http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- <bean name="/index.jsp" class="com.rocketAlan.controller.IndexController"></bean> -->
+
+	<context:annotation-config />
+
+	<tx:annotation-driven />
+	<mvc:annotation-driven />
+
+	<!--Component scanning with <context:component-scan base-package="com.rocketAlan" 
+		/> is telling spring that it should search the class path for all the classes 
+		under "com.rocketAlan" and look at each class to see if it has a @Controller, 
+		or @Repository, or @Service, or @Component and if it does then Spring will 
+		register the class with the bean factory as if you had typed <bean class="..." 
+		/> in the xml configuration files. -->
+	<!-- Specify base package of the components DAO, Controller, etc -->
+	<context:component-scan base-package="com.rocketOzzy.controller" />
+	<context:component-scan base-package="com.rocketOzzy.dao" />
+	<context:component-scan base-package="com.rocketOzzy.service" />
+	<context:component-scan base-package="com.rocketOzzy.util" />
+
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+
+
+	<!-- Maps static resources like images, css, javascript files -->
+	<mvc:resources mapping="/resources/**" location="/resources/" />
+
+
+	<!-- Getting database properties -->
+	<!-- System get from src/main/resources -->
+	<context:property-placeholder location="classpath:hibernate.properties" />
+
+	<!-- Setting Hibernate 5 in Spring 4 -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${database.driverClass}" />
+		<property name="url" value="${database.url}" />
+		<property name="username" value="${database.username}" />
+		<property name="password" value="${database.password}" />
+	</bean>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<!-- <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop> -->
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+			</props>
+		</property>
+		<property name="packagesToScan">
+			<list>
+				<value>com.rocketOzzy.model</value>
+			</list>
+		</property>
+
+		<!-- <property name="mappingResources"> <list> <value>employee.hbm.xml</value> 
+			</list> </property> -->
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+
+
+
+
+</beans>
